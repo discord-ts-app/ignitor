@@ -7,7 +7,7 @@ import { Client, Message } from 'discord.js'
 import Event from './Interfaces/Event'
 
 export default class Ignitor {
-	private bot: Bot
+	public bot: Bot
 	public client: Client
 	private guard: Guard
 
@@ -23,7 +23,7 @@ export default class Ignitor {
 		this.messages()
 	}
 
-	public fetchEvents(dirname: string): Array<any> {
+	private fetchEvents(dirname: string): Array<any> {
 		const events: Array<Event> = []
 		const loader = new Loader(`${dirname}/${Env.get('EVENTS_FOLDER') || 'Events'}`)
 
@@ -35,7 +35,7 @@ export default class Ignitor {
 		return events
 	}
 
-	public fetchCommands(dirname: string): Array<any> {
+	private fetchCommands(dirname: string): Array<any> {
 		const commands: Array<any> = []
 		const loader = new Loader(`${dirname}/${Env.get('COMMANDS_FOLDER') || 'Commands'}`)
 
@@ -47,7 +47,7 @@ export default class Ignitor {
 		return commands
 	}
 
-	public fetchMiddlewares(dirname: string): Array<any> {
+	private fetchMiddlewares(dirname: string): Array<any> {
 		const middlewares: Array<any> = []
 		const loader = new Loader(`${dirname}/${Env.get('MIDDLEWARES_FOLDER') || 'Middlewares'}`)
 
@@ -59,7 +59,7 @@ export default class Ignitor {
 		return middlewares
 	}
 
-	public fetchModules(dirname: string): Array<any> {
+	private fetchModules(dirname: string): Array<any> {
 		const modules: Array<any> = []
 		const loader = new Loader(`${dirname}/${Env.get('MODULES_FOLDER') || 'Modules'}`)
 
