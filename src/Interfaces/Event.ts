@@ -1,4 +1,4 @@
-import Events from '@discord-ts-app/core/build/enums/Events'
+import Events from '../Types/Events'
 
 export default interface Event {
 	readonly name: string

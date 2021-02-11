@@ -1,26 +1,27 @@
-import Bot from '@discord-ts-app/core'
+import Core from '@discord-ts-app/core'
 import Env from '@discord-ts-app/env'
 import Guard from '@discord-ts-app/guard'
 import Loader from '@discord-ts-app/loader'
 import { Client, Message } from 'discord.js'
-
 import Event from './Interfaces/Event'
 
 export default class Ignitor {
-	public bot: Bot
-	public client: Client
+	public static core: Core
+	public static client: Client
 	private guard: Guard
 
 	constructor(dirname: string) {
-		this.client = new Client({ partials: ['MESSAGE', 'CHANNEL', 'USER', 'REACTION'] })
-		this.bot = new Bot(this.client, {
+		Ignitor.client = new Client({ partials: ['MESSAGE', 'CHANNEL', 'USER', 'REACTION'] })
+		Ignitor.core = new Core(Ignitor.client, {
 			events: this.fetchEvents(dirname),
 			commands: this.fetchCommands(dirname),
 			middlewares: this.fetchMiddlewares(dirname),
 			modules: this.fetchModules(dirname)
 		})
-		this.guard = new Guard(this.bot)
-		this.messages()
+		this.guard = new Guard(Ignitor.core)
+		Ignitor.client.on('message', async (message: Message) => {
+			await this.guard.protect(Ignitor.core, message)
+		})
 	}
 
 	private fetchEvents(dirname: string): Array<any> {
@@ -69,11 +70,5 @@ export default class Ignitor {
 		})
 
 		return modules
-	}
-
-	public messages() {
-		this.client.on('message', async (message: Message) => {
-			await this.guard.protect(this.bot, message)
-		})
 	}
 }
