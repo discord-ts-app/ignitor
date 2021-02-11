@@ -11,7 +11,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@discord-ts-app/core": "^2.0.0",
+		"@discord-ts-app/core": "^2.0.1",
 		"@discord-ts-app/env": "^1.0.0",
 		"@discord-ts-app/guard": "^1.0.0",
 		"@discord-ts-app/loader": "^1.0.0",
