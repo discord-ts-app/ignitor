@@ -2,26 +2,27 @@ import Core from '@discord-ts-app/core'
 import Env from '@discord-ts-app/env'
 import Guard from '@discord-ts-app/guard'
 import Loader from '@discord-ts-app/loader'
+import { Lifecycle } from '@discord-ts-app/lifecycle'
 import { Client, Message } from 'discord.js'
 import Event from './Interfaces/Event'
 
 export default class Ignitor {
-	public static core: Core
-	public static client: Client
+	public core: Core
+	public client: Client
 	private guard: Guard
 
 	constructor(dirname: string) {
-		Ignitor.client = new Client({ partials: ['MESSAGE', 'CHANNEL', 'USER', 'REACTION'] })
-		Ignitor.core = new Core(Ignitor.client, {
+		this.client = new Client({ partials: ['MESSAGE', 'CHANNEL', 'USER', 'REACTION'] })
+		this.core = new Core(this.client, {
+			middlewares: this.fetchMiddlewares(dirname),
 			events: this.fetchEvents(dirname),
 			commands: this.fetchCommands(dirname),
-			middlewares: this.fetchMiddlewares(dirname),
 			modules: this.fetchModules(dirname)
 		})
-		this.guard = new Guard(Ignitor.core)
-		Ignitor.client.on('message', async (message: Message) => {
-			await this.guard.protect(Ignitor.core, message)
-		})
+		new Lifecycle('createDiscordClient')
+		this.guard = new Guard(this.core)
+		this.client.on('message', async (message: Message) => await this.guard.protect(this.core, message))
+		new Lifecycle('starting')
 	}
 
 	private fetchEvents(dirname: string): Array<any> {
@@ -30,7 +31,10 @@ export default class Ignitor {
 
 		loader.fetch().map(async (event: any) => {
 			const instance = new (require(event).default)()
-			if (!Object.getPrototypeOf(instance).unused) events.push(instance)
+			if (!Object.getPrototypeOf(instance).unused) {
+				events.push(instance)
+				new Lifecycle('eventLoaded', instance)
+			}
 		})
 
 		return events
@@ -42,7 +46,10 @@ export default class Ignitor {
 
 		loader.fetch().map(async (command: any) => {
 			const instance = new (require(command).default)()
-			if (!Object.getPrototypeOf(instance).unused) commands.push(instance)
+			if (!Object.getPrototypeOf(instance).unused) {
+				commands.push(instance)
+				new Lifecycle('commandLoaded', instance)
+			}
 		})
 
 		return commands
@@ -54,7 +61,10 @@ export default class Ignitor {
 
 		loader.fetch().map(async (middleware: any) => {
 			const instance = new (require(middleware).default)()
-			if (!Object.getPrototypeOf(instance).unused) middlewares.push(instance)
+			if (!Object.getPrototypeOf(instance).unused) {
+				middlewares.push(instance)
+				new Lifecycle('middlewareLoaded', instance)
+			}
 		})
 
 		return middlewares
